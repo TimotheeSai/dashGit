@@ -54,7 +54,7 @@ export const fetchGetQueryFilter = async (url: string, filters: QueryFilter = {}
     const filterUrl = Object.entries(filters).map(([k, v]) => (
         `${encodeURIComponent(k)}=${encodeURIComponent(v)}`
     )).join('&')
-    console.log({[url]: filterUrl})
+    // console.log({[url]: filterUrl})
     return await fetchApiGet(url)
         .then(response => (response.json()))
 }
