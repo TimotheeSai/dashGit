@@ -11,12 +11,12 @@
     } from './lib/queryApi'
 
 
-    let job: any;
-    let jobTrace: string = '';
     let mergeRequests = [];
     let mrPipelines = [];
     let pipelineJobs = [];
 
+    let job: any;
+    let jobTrace: string = '';
     let pipelineId: number;
     let mrIid: number;
     
@@ -31,19 +31,35 @@
             assignee_id: '127',
             state: 'opened'
         })
-        mrIid = mergeRequests[0].iid
+        // mrIid = mergeRequests[0].iid
     });
 
 </script>
 
-<main class='bg-inherit flex flex-col w-full'>
-    <MergeRequestList
-        mergeRequests={mergeRequests}
-        on:setMr={({ detail: { iid } }) => {mrIid = iid }}
-    />
-    <div class='flex justify-center items-center'>
-        <div>merge request iid: {mrIid}</div>
+<main class='bg-inherit flex flex-col '>
+    <div>
+        <button 
+            class='rounded px-4 ring-2'
+            on:click={() => {
+                mrIid = 0
+                mrPipelines = []
+                pipelineJobs = []
+                job = null
+            }}
+        >
+            Reset
+        </button>
     </div>
+    {#if mrIid}
+        <div class='flex justify-center items-center'>
+            <div>merge request iid: {mrIid}</div>
+        </div>
+    {:else}
+        <MergeRequestList
+            mergeRequests={mergeRequests}
+            on:setMr={({ detail: { iid } }) => {mrIid = iid }}
+        />
+    {/if}
     <PipelineList
         pipelines={mrPipelines}
         mrId={mrIid} 
