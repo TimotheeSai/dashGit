@@ -36,6 +36,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"ansi-to-html": "^0.7.2"
+		"ansi-to-html": "^0.7.2",
+		"daisyui": "^2.50.0"
 	}
 }
