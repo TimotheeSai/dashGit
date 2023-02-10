@@ -2,7 +2,15 @@ interface QueryFilter {
   [index: string]: string;
 }
 
-interface MergeRequest {
+export interface MergeRequest {
+  [index: string]: any;
+}
+
+export interface Pipeline {
+  [index: string]: any;
+}
+
+export interface Job {
   [index: string]: any;
 }
 

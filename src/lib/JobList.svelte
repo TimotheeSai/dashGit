@@ -1,33 +1,41 @@
 <script lang='ts'>
     import { createEventDispatcher } from 'svelte';
-    import Tag from './Tag.svelte'
+    import Tag from '$lib/components/Tag.svelte'
+    import Table from '$lib/components/Table.svelte';
+    import {
+        fetchGetQueryFilter
+    } from '$lib/queryApi'
+    import type { Job } from '$lib/queryApi'
 
-    export let jobs = [];
     export let pipelineId: number;
+    export let jobs: Job[] = [];
+    let selected: number;
 
 	const dispatch = createEventDispatcher();
-    const setJob = (jobId: any):void => {
-        dispatch('setJob', {
-            job: jobs.find(e => e.id === jobId)
-        })
-    }
 
+    $: pipelineId ? fetchGetQueryFilter(`pipelines/${pipelineId}/jobs`).then(r => { jobs = r }) : (jobs = [])
+    $: selected = pipelineId ? selected : 0
+    $: jobs = jobs.map(({id, ...job}) => ({
+        ...job,
+        id,
+        class: `${selected  && selected  !== id ? 'hidden' : ''}`,
+        onClick: () => {
+            selected = selected ? 0 : id
+            dispatch('setJob', {
+                job: jobs.find(e => e.id === id)
+            })
+        }
+    }))
 </script>
 <div>
     {#if jobs.length}
-        <div class='flex justify-center items-center'>
-            <div>jobs for pipeline: {pipelineId}</div>
-        </div>
-        <ul class='flex flex-col shadow rounded p-4 bg-white my-2 divide-y-2'>
-            {#each jobs as item}
-                <li class='grid grid-cols-6 text-left py-4 items-center' on:click={() => {setJob(item.id)}} on:keypress={() => {() => {setJob(item.id)}}}>
-                    <div class='col-span-2'>{item.ref}</div>
-                    <div>{item.id}</div>
-                    <div>{item.stage}</div>
-                    <div>{item.name}</div>
-                    <Tag status={item.status} />
-                </li>
-            {/each}
-        </ul>
+        <div class="divider"></div>
+        <h1>Jobs</h1>
+        <Table rows={jobs}
+            columns={['id', 'stage', 'name', 'status'].map(i => ({
+                key: i,
+                component: i === 'status' && Tag,
+                componentProps: i === 'status' ? (row, k) => ({status: row[k]}) : undefined
+            }))} />
     {/if}
 </div>

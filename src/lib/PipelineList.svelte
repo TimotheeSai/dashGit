@@ -1,32 +1,58 @@
 <script lang='ts'>
     import { createEventDispatcher } from 'svelte';
-    import Tag from './Tag.svelte'
+    import Table from '$lib/components/Table.svelte';
+    import Tag from '$lib/components/Tag.svelte'
+    import {
+        fetchGetQueryFilter
+    } from '$lib/queryApi'
+    import type { Pipeline } from '$lib/queryApi'
     	
-    export let pipelines = [];
-    export let mrId: number;
+    export let pipelines: Pipeline[] = [];
+    export let mrIid: number;
+    let selected: number;
 
 	const dispatch = createEventDispatcher();
-    const setPipelineId = (id: number):void => {
-        dispatch('setPipeline', {id})
-    }
+
+    $: console.log({pipelines})
+    $: mrIid ? fetchGetQueryFilter(`merge_requests/${mrIid}/pipelines`).then( r => { pipelines = r } ) : (pipelines = [])
+    $: selected = mrIid ? selected : 0
+    $: pipelines = pipelines.map(({id, ...p}) => ({
+        ...p,
+        id,
+        class: `${selected ? selected  !== id && 'hidden' : ''}`,
+        onClick: () => {
+            selected = selected ? 0 : id
+            dispatch('setPipeline', { id: selected })
+        }
+    }))
 </script>
 <div>
     {#if pipelines.length}
-        <div class='flex justify-center items-center'>
-            <div>pipelines for mrId: {mrId}</div>
-        </div>
-        <ul class='flex flex-col shadow rounded p-4 bg-white my-2 divide-y-2'>
-            {#each pipelines as item}
-                <li
-                    class='grid grid-cols-4 text-left py-4'
-                    on:click={() => {setPipelineId(item.id)}}
-                    on:keypress={() => {setPipelineId(item.id)}}
-                >
-                    <div class='col-span-2'>{item.ref}</div>
-                    <Tag status={item.status}/>
-                    <div>{item.id}</div>
-                </li>
-            {/each}
-        </ul>
+        <div class="divider"></div>
+        <h1>Pipelines</h1>
+        <Table rows={pipelines}
+            columns={[
+                {
+                    key: 'id',
+                    element: 'a',
+                    componentProps: (row) => ({
+                        href: row.web_url,
+                        target: '_blank',
+                        class: 'underline'
+                    })
+                },{
+                    key: 'ref'
+                },{
+                    key: 'updated_at',
+                    title: 'last updated',
+                    content: (row, key) => (new Date(row[key]).toLocaleString())
+                },{
+                    key: 'status',
+                    component: Tag,
+                    componentProps: (row, k) => ({status: row[k]})
+
+                }
+            ]}
+        />
     {/if}
 </div>
