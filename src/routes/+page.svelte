@@ -3,20 +3,20 @@
     import PipelineList from '$lib/PipelineList.svelte'
     import Job from '$lib/JobView.svelte'
     import JobList from '$lib/JobList.svelte'
+    import ThemeSelector from '$lib/ThemeSelector.svelte'
 
     let job: any;
     let pipelineId: number;
     let mrIid: number;
-    let theme: string = 'dark';
     let unique = {};
 </script>
 
 <main class='bg-inherit flex flex-col m-4 lg:m-16'>
     <div class='flex justify-between items-center'>
         <h1 class='text-6xl font-bold'>DashGit</h1>
-        <div>
+        <div class='flex gap-4'>
             <button
-                class='btn'
+                class='btn btn-active'
                 on:click={() => {
                     mrIid = 0
                     pipelineId = 0
@@ -26,6 +26,7 @@
             >
                 Reset
             </button>
+            <ThemeSelector />
         </div>
     </div>
     {#key unique}
